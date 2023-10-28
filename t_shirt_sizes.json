@@ -1,0 +1,39 @@
+{
+  "t_shirt_sizes": [
+    {
+      "name": "3XS",
+      "min": 1,
+      "max": 5
+    },
+    {
+      "name": "XXS",
+      "min": 6,
+      "max": 10
+    },
+    {
+      "name": "XS",
+      "min": 11,
+      "max": 25
+    },
+    {
+      "name": "S",
+      "min": 26,
+      "max": 50
+    },
+    {
+      "name": "M",
+      "min": 51,
+      "max": 100
+    },
+    {
+      "name": "L",
+      "min": 101,
+      "max": 200
+    },
+    {
+      "name": "XL",
+      "min": 201,
+      "max": 400
+    }
+  ]
+}
