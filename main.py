@@ -3,6 +3,8 @@ import json
 import os
 import time
 from collections import namedtuple, defaultdict
+from datetime import datetime
+
 import matplotlib.pyplot as plt
 from loguru import logger
 
@@ -187,6 +189,7 @@ def main():
     done = 0
     log_intervall = 10
     last_log = 0
+    start_ts = time.time()
     for counts in itertools.product(*search_space):
         etappe = []
         for count, t_shirt in zip(counts, t_shirt_sizes):
@@ -196,7 +199,12 @@ def main():
         done += 1
 
         if time.time() - last_log > log_intervall:
-            logger.debug(f'{done / todo_count * 100:0.2f}% ({done}/{todo_count})')
+            elapsed = time.time() - start_ts
+            percentage = done / todo_count
+            eta = elapsed * todo_count / done + start_ts
+            eta = datetime.fromtimestamp(eta).strftime('%Y-%m-%d %H:%M:%S')
+
+            logger.debug(f'{done / todo_count * 100:0.2f}% ({done}/{todo_count}) ETA: {eta}')
             last_log = time.time()
 
 
