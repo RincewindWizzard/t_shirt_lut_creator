@@ -4,16 +4,14 @@ import os
 import time
 from collections import namedtuple, defaultdict
 import matplotlib.pyplot as plt
-import numpy as np
-
-from matplotlib import colors
-from matplotlib.ticker import PercentFormatter
+from loguru import logger
 
 TShirt = namedtuple('TShirt', ['name', 'min', 'max'])
 
 with open('t_shirt_sizes.json') as f:
     t_shirt_sizes = json.load(f)['t_shirt_sizes']
     t_shirt_sizes = [TShirt(t_shirt['name'], t_shirt['min'], t_shirt['max']) for t_shirt in t_shirt_sizes]
+    sorted(t_shirt_sizes, key=lambda x: x.min)
     t_shirt_by_name = {t_shirt.name: t_shirt for t_shirt in t_shirt_sizes}
 
 XXXS = t_shirt_by_name['3XS']
@@ -147,23 +145,12 @@ def visual_main():
     # print(result)
 
 
-def main():
-    etappe = [
-        XXXS, XXXS,
-        XXS, XXS, XXS,
-        XS,
-        S,
-        M, M, M,
-        L,
-        XL
-    ]
-    result = efficient_count(etappe)
+def save_lut(etappe):
+    result = efficient_count(etappe) if len(etappe) > 0 else [(0, 0)]
     xs = [x for x, y in result]
     ys = [y for x, y in result]
 
     metadata = [
-        min(xs),
-        max(xs),
         etappe.count(XXXS),
         etappe.count(XXS),
         etappe.count(XS),
@@ -173,17 +160,44 @@ def main():
         etappe.count(XL),
     ]
 
-    #row = metadata + ys[:len(ys) // 2]
-    row = ys
-    print(row)
+    # row = metadata + ys[:len(ys) // 2]
+    row = ys[:len(ys) // 2 + 1]
 
-    filename = '-'.join(list(str(x) for x in metadata))
+    #filename = '-'.join(list(str(x) for x in metadata))
 
-    print(os.getcwd())
+    directory = os.path.join('dist', 'luts', '/'.join(list(str(x) for x in metadata)))
+    path = os.path.join(directory, f'{min(xs)}_{max(xs)}.lut')
 
-    with open(os.path.join('dist', 'luts', filename), 'w') as f:
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    with open(path, 'w') as f:
         f.write('\n'.join(list(str(x) for x in row)))
-    print(filename)
+
+
+def main():
+    limit = 100
+
+    todo_count = 1
+    search_space = []
+    for t_shirt in t_shirt_sizes:
+        search_space.append(list(range(0, max(1, limit // t_shirt.min))))
+        todo_count *= max(1, limit // t_shirt.min)
+
+    done = 0
+    log_intervall = 10
+    last_log = 0
+    for counts in itertools.product(*search_space):
+        etappe = []
+        for count, t_shirt in zip(counts, t_shirt_sizes):
+            for i in range(count):
+                etappe.append(t_shirt)
+        save_lut(etappe)
+        done += 1
+
+        if time.time() - last_log > log_intervall:
+            logger.debug(f'{done / todo_count * 100:0.2f}% ({done}/{todo_count})')
+            last_log = time.time()
 
 
 if __name__ == '__main__':
