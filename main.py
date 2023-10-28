@@ -178,7 +178,7 @@ def save_lut(etappe):
 
 
 def main():
-    limit = 100
+    limit = 600
 
     todo_count = 1
     search_space = []
@@ -204,7 +204,7 @@ def main():
             eta = elapsed * todo_count / done + start_ts
             eta = datetime.fromtimestamp(eta).strftime('%Y-%m-%d %H:%M:%S')
 
-            logger.debug(f'{done / todo_count * 100:0.2f}% ({done}/{todo_count}) ETA: {eta}')
+            logger.debug(f'{done / todo_count * 100:0.2f}%\t({done}/{todo_count})\t{int(done/elapsed)} #/s\tETA: {eta}')
             last_log = time.time()
 
 
